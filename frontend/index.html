@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Student Dashboard - M2 Info</title>
+<!-- Styles CSS simplifiés pour la lisibilité -->
+<style>
+body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+.card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 5px;
+box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.status { padding: 10px; margin-bottom: 20px; border-radius: 4px; font-weight: bold;
+text-align: center;}
+.ok { background-color: #d4edda; color: #155724; }
+.error { background-color: #f8d7da; color: #721c24; }
+</style>
+</head>
+<body>
+<h1>Dashboard Promo M2</h1>
+<div id="status" class="status">Chargement...</div>
+<div id="list"></div>
+<script>
+const API_URL = "http://localhost:8000";
+async function load() {
+const statusDiv = document.getElementById('status');
+try {
+const res = await fetch(`${API_URL}/`);
+if (!res.ok) throw new Error("API Error");
+const data = await res.json();
+// Vérification de version (Si l'étudiant n'a pas fait l'étape 2)
+if(data.version) {
+statusDiv.innerText = "⚠️ API connectée : Mode Version (Table Students non
+trouvée)";
+statusDiv.className = "status error";
+return;
+}
+statusDiv.innerText = "✅ Système Opérationnel";
+statusDiv.className = "status ok";
+
+document.getElementById('list').innerHTML = data.map(s => `
+<div class="card">
+<h3>${s.nom || 'Anonyme'}</h3>
+<p>Promo: ${s.promo || 'N/A'}</p>
+<p><small>Vues: ${s.views !== undefined ? s.views : 'N/A (Cache HS)'}</small></p>
+</div> 
+`).join('');
+} catch (e) {
+statusDiv.innerText = "❌ Erreur connexion API";
+statusDiv.className = "status error";
+console.error(e);
+}
+}
+setInterval(load, 2000);
+load();
+</script>
+</body>
+</html>
