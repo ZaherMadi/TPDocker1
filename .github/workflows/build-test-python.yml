@@ -27,7 +27,7 @@ jobs:
       - name: Start services with docker compose
         run: docker compose up -d
         env:
-          POSTGRES_PASSWORD: testpassword123
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
       # 4-bis. Attendre que les services soient healthy
       - name: Wait for services to be ready
