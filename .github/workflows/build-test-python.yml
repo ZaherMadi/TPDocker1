@@ -36,7 +36,7 @@ jobs:
           sleep 30
           docker compose ps
 
-      # 5. Lecture des logs (chercher un pattern)
+      # 5. Lecture des logs (debug)
       - name: Show API logs
         run: docker compose logs api
 
