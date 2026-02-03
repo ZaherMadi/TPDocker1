@@ -40,7 +40,7 @@ services:
       - backend_net
 
   api:
-    image: python-api
+    image: ${PYTHON_IMAGE:-python-api}
     build:
       context: .
       dockerfile: python.Dockerfile

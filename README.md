@@ -218,6 +218,7 @@ docker compose exec api whoami
 - L'API utilise `CORS: *` (à restreindre en production)
 - Redis INCR est atomique (pas de race condition)
 - Les healthchecks retardent le démarrage (normal)
+- Conseil : Suivre le démarrage des containers sur docker desktop. 
 
 ## Licence
 

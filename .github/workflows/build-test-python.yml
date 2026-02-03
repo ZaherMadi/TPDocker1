@@ -1,0 +1,55 @@
+name: Build and Test Python
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Récupérer le code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Build l'image Docker (sans push)
+      - name: Build Docker image
+        run: docker build -t python-api:test -f python.Dockerfile .
+
+      # 3. Tag l'image pour que docker-compose la trouve
+      - name: Tag image for compose
+        run: docker tag python-api:test python-api
+
+      # 4. Lancer la stack complète en mode détaché
+      - name: Start services with docker compose
+        run: docker compose up -d
+        env:
+          POSTGRES_PASSWORD: testpassword123
+
+      # 4-bis. Attendre que les services soient healthy
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for services to start..."
+          sleep 30
+          docker compose ps
+
+      # 5. Lecture des logs (chercher un pattern)
+      - name: Show API logs
+        run: docker compose logs api
+
+      # 5-bis. Vérifier le pattern de démarrage
+      - name: Check API logs for startup pattern
+        run: docker compose logs api 2>&1 | grep -i "uvicorn\|started\|running\|application"
+
+      # 6. Smoke Test - Vérifier que le conteneur est Up
+      - name: Check containers are running
+        run: docker compose ps | grep api
+
+      # 6-bis. Smoke Test - Requête HTTP
+      - name: HTTP Health Check
+        run: |
+          curl --retry 5 --retry-delay 3 --retry-connrefused http://localhost:8000/
+          echo "API responded successfully!"
