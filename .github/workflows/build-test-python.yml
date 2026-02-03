@@ -26,11 +26,15 @@ jobs:
       # 3-bis. Attendre que le conteneur démarre
       - name: Wait for container to start
         run: sleep 10
+        
+     # D'abord voir ce qu'il y a dans les logs
+      - name: Show container logs
+        run: docker logs api-test
       
-      # 4. Lecture des logs (chercher un pattern)
+      #4. Lecture des logs (chercher un pattern)
       - name: Check container logs
         run: docker logs api-test 2>&1 | grep -i "uvicorn\|started\|running"
-      
+            
       # 5. Smoke Test - Vérifier que le conteneur est Up
       - name: Check container is running
         run: docker ps | grep api-test
