@@ -1,0 +1,41 @@
+name: Build and Test Python
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. Récupérer le code
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # 2. Build l'image Docker (sans push)
+      - name: Build Docker image
+        run: docker build -t python-api:test -f python.Dockerfile .
+      
+      # 3. Lancer le conteneur en mode détaché
+      - name: Run container
+        run: docker run -d --name api-test -p 8000:8000 python-api:test
+      
+      # 3-bis. Attendre que le conteneur démarre
+      - name: Wait for container to start
+        run: sleep 10
+      
+      # 4. Lecture des logs (chercher un pattern)
+      - name: Check container logs
+        run: docker logs api-test 2>&1 | grep -i "uvicorn\|started\|running"
+      
+      # 5. Smoke Test - Vérifier que le conteneur est Up
+      - name: Check container is running
+        run: docker ps | grep api-test
+      
+      # 5-bis. Smoke Test - Requête HTTP
+      - name: HTTP Health Check
+        run: |
+          curl --retry 5 --retry-delay 3 --retry-connrefused http://localhost:8000/ || exit 1
