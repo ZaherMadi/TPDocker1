@@ -33,8 +33,9 @@ jobs:
       # 3. Définir l'image Python depuis GHCR (PAS de build local)
       - name: Set Python image from GHCR
         run: |
-          echo "PYTHON_IMAGE=ghcr.io/${{ github.repository }}/python-api:${{ github.event.workflow_run.head_sha }}" >> $GITHUB_ENV
-          echo "Using image: ghcr.io/${{ github.repository }}/python-api:${{ github.event.workflow_run.head_sha }}"
+          REPO_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')
+          echo "PYTHON_IMAGE=ghcr.io/${REPO_LOWER}/python-api:${{ github.event.workflow_run.head_sha }}" >> $GITHUB_ENV
+          echo "Using image: ghcr.io/${REPO_LOWER}/python-api:${{ github.event.workflow_run.head_sha }}"
 
       # 2bis. Démarrer la stack complète
       - name: Start full stack with docker compose

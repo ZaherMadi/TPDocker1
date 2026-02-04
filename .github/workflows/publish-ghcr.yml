@@ -23,7 +23,11 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
-      # 2. Authentification au GitHub Container Registry
+      # 2. Convertir le nom du repo en lowercase (requis par GHCR)
+      - name: Set lowercase repository name
+        run: echo "REPO_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      # 3. Authentification au GitHub Container Registry
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -36,7 +40,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/python-api
+          images: ghcr.io/${{ env.REPO_LOWER }}/python-api
           tags: |
             type=sha,prefix=
             type=ref,event=branch
